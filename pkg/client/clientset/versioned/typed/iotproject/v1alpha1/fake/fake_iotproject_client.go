@@ -3,7 +3,7 @@
 package fake
 
 import (
-	v1alpha1 "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned/typed/iotproject/v1alpha1"
+	v1alpha1 "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned/typed/iotproject/v1alpha1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )

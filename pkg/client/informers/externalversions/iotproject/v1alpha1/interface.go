@@ -3,7 +3,7 @@
 package v1alpha1
 
 import (
-	internalinterfaces "github.com/ctron/qdrouter-proxy-manager/pkg/client/informers/externalversions/internalinterfaces"
+	internalinterfaces "github.com/ctron/hono-qdrouter-proxy/pkg/client/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.

@@ -7,9 +7,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned"
-	internalinterfaces "github.com/ctron/qdrouter-proxy-manager/pkg/client/informers/externalversions/internalinterfaces"
-	iotproject "github.com/ctron/qdrouter-proxy-manager/pkg/client/informers/externalversions/iotproject"
+	versioned "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned"
+	internalinterfaces "github.com/ctron/hono-qdrouter-proxy/pkg/client/informers/externalversions/internalinterfaces"
+	iotproject "github.com/ctron/hono-qdrouter-proxy/pkg/client/informers/externalversions/iotproject"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

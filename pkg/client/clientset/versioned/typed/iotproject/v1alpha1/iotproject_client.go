@@ -3,8 +3,8 @@
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/ctron/qdrouter-proxy-manager/pkg/apis/iotproject/v1alpha1"
-	"github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/ctron/hono-qdrouter-proxy/pkg/apis/iotproject/v1alpha1"
+	"github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned/scheme"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	rest "k8s.io/client-go/rest"
 )

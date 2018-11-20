@@ -3,7 +3,7 @@
 package versioned
 
 import (
-	honov1alpha1 "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned/typed/iotproject/v1alpha1"
+	honov1alpha1 "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned/typed/iotproject/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"

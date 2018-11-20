@@ -3,7 +3,7 @@
 package scheme
 
 import (
-	honov1alpha1 "github.com/ctron/qdrouter-proxy-manager/pkg/apis/iotproject/v1alpha1"
+	honov1alpha1 "github.com/ctron/hono-qdrouter-proxy/pkg/apis/iotproject/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

@@ -5,10 +5,10 @@ package v1alpha1
 import (
 	time "time"
 
-	iotprojectv1alpha1 "github.com/ctron/qdrouter-proxy-manager/pkg/apis/iotproject/v1alpha1"
-	versioned "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned"
-	internalinterfaces "github.com/ctron/qdrouter-proxy-manager/pkg/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/ctron/qdrouter-proxy-manager/pkg/client/listers/iotproject/v1alpha1"
+	iotprojectv1alpha1 "github.com/ctron/hono-qdrouter-proxy/pkg/apis/iotproject/v1alpha1"
+	versioned "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned"
+	internalinterfaces "github.com/ctron/hono-qdrouter-proxy/pkg/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/ctron/hono-qdrouter-proxy/pkg/client/listers/iotproject/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"

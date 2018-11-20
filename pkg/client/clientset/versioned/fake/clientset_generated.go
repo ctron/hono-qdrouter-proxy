@@ -3,9 +3,9 @@
 package fake
 
 import (
-	clientset "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned"
-	honov1alpha1 "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned/typed/iotproject/v1alpha1"
-	fakehonov1alpha1 "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned/typed/iotproject/v1alpha1/fake"
+	clientset "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned"
+	honov1alpha1 "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned/typed/iotproject/v1alpha1"
+	fakehonov1alpha1 "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned/typed/iotproject/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

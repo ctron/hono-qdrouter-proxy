@@ -26,7 +26,7 @@ CODEGEN_PKG=${CODEGEN_PKG:-$(cd ${SCRIPT_ROOT}; ls -d -1 ./vendor/k8s.io/code-ge
 #                  k8s.io/kubernetes. The output-base is needed for the generators to output into the vendor dir
 #                  instead of the $GOPATH directly. For normal projects this can be dropped.
 ${CODEGEN_PKG}/generate-groups.sh "deepcopy,client,informer,lister" \
-  github.com/ctron/qdrouter-proxy-manager/pkg/client github.com/ctron/qdrouter-proxy-manager/pkg/apis \
+  github.com/ctron/hono-qdrouter-proxy/pkg/client github.com/ctron/hono-qdrouter-proxy/pkg/apis \
   iotproject:v1alpha1 \
   --go-header-file ${SCRIPT_ROOT}/hack/boilerplate.go.txt
 

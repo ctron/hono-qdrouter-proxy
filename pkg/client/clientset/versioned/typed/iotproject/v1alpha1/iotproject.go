@@ -3,8 +3,8 @@
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/ctron/qdrouter-proxy-manager/pkg/apis/iotproject/v1alpha1"
-	scheme "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned/scheme"
+	v1alpha1 "github.com/ctron/hono-qdrouter-proxy/pkg/apis/iotproject/v1alpha1"
+	scheme "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"

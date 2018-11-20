@@ -3,7 +3,7 @@ package main
 import (
     "flag"
 
-    "github.com/ctron/qdrouter-proxy-manager/pkg/signals"
+    "github.com/ctron/hono-qdrouter-proxy/pkg/signals"
 
     kubeinformers "k8s.io/client-go/informers"
 
@@ -13,8 +13,8 @@ import (
 
     "time"
 
-    clientset "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned"
-    informers "github.com/ctron/qdrouter-proxy-manager/pkg/client/informers/externalversions"
+    clientset "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned"
+    informers "github.com/ctron/hono-qdrouter-proxy/pkg/client/informers/externalversions"
 )
 
 

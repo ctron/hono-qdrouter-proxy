@@ -5,7 +5,7 @@ package internalinterfaces
 import (
 	time "time"
 
-	versioned "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned"
+	versioned "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	cache "k8s.io/client-go/tools/cache"

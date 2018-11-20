@@ -18,7 +18,7 @@ package main
 
 import (
     "fmt"
-    "github.com/ctron/qdrouter-proxy-manager/pkg/apis/iotproject/v1alpha1"
+    "github.com/ctron/hono-qdrouter-proxy/pkg/apis/iotproject/v1alpha1"
     "os/exec"
     "strconv"
     "time"
@@ -37,10 +37,10 @@ import (
     "k8s.io/client-go/util/workqueue"
     "k8s.io/klog"
 
-    clientset "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned"
-    iotscheme "github.com/ctron/qdrouter-proxy-manager/pkg/client/clientset/versioned/scheme"
-    informers "github.com/ctron/qdrouter-proxy-manager/pkg/client/informers/externalversions/iotproject/v1alpha1"
-    listers "github.com/ctron/qdrouter-proxy-manager/pkg/client/listers/iotproject/v1alpha1"
+    clientset "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned"
+    iotscheme "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned/scheme"
+    informers "github.com/ctron/hono-qdrouter-proxy/pkg/client/informers/externalversions/iotproject/v1alpha1"
+    listers "github.com/ctron/hono-qdrouter-proxy/pkg/client/listers/iotproject/v1alpha1"
 )
 
 const controllerAgentName = "sample-controller"
