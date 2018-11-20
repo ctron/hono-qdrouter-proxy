@@ -1,0 +1,6 @@
+package: github.com/ctron/hono-qdrouter-proxy
+import:
+- package: k8s.io/client-go
+  version: v9.0.0
+- package: k8s.io/code-generator
+  version: kubernetes-1.12.2
