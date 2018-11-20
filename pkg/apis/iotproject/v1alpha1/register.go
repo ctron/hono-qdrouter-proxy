@@ -11,6 +11,14 @@ const GroupVersion = "v1alpha1"
 
 var SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: GroupVersion}
 
+func Kind(kind string) schema.GroupKind {
+    return SchemeGroupVersion.WithKind(kind).GroupKind()
+}
+
+func Resource(resource string) schema.GroupResource {
+    return SchemeGroupVersion.WithResource(resource).GroupResource()
+}
+
 var (
     SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
     AddToScheme   = SchemeBuilder.AddToScheme
