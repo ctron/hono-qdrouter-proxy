@@ -256,7 +256,7 @@ func (c *Controller) syncHandler(key string) error {
 }
 
 func (c *Controller) manage(operation string, attributes map[string]string) error {
-    args := []string{"qdmanage"}
+    args := []string{"/usr/bin/qdmanage"}
 
     args = append(args, "-b", "amqp://localhost:5762")
     args = append(args, operation)
@@ -268,7 +268,7 @@ func (c *Controller) manage(operation string, attributes map[string]string) erro
     klog.Infof("Call: %s", args)
 
     cmd := exec.Cmd{
-        Path: args[0],
+        Path: "qdmanage",
         Args: args,
         Stdout: os.Stdout,
         Stderr: os.Stderr,
