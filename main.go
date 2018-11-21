@@ -2,6 +2,7 @@ package main
 
 import (
     "flag"
+    "os"
 
     "github.com/ctron/hono-qdrouter-proxy/pkg/signals"
 
@@ -24,6 +25,8 @@ var (
 
 func main() {
     flag.Parse()
+
+    klog.SetOutput(os.Stdout)
 
     // set up signals so we handle the first shutdown signal gracefully
     stopCh := signals.SetupSignalHandler()
