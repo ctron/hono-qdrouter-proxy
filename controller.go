@@ -284,10 +284,6 @@ func (c *Controller) manage(operation string, attributes map[string]string) ( st
     cmd.Stderr = os.Stderr
 
     out, err := cmd.Output()
-    if err != nil {
-        return "", err
-    }
-
     text := string(out)
 
     if _, ok := err.(*exec.ExitError); ok {
