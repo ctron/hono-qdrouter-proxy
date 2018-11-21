@@ -283,8 +283,6 @@ func (c *Controller) manage(operation string, attributes map[string]string) ( st
     cmd := exec.Command("/usr/bin/qdmanage", args...)
     cmd.Stderr = os.Stderr
 
-    err := cmd.Run()
-
     out, err := cmd.Output()
     if err != nil {
         return "", err
