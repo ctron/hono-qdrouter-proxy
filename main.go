@@ -17,7 +17,6 @@ import (
     informers "github.com/ctron/hono-qdrouter-proxy/pkg/client/informers/externalversions"
 )
 
-
 var (
     masterURL  string
     kubeconfig string
@@ -28,6 +27,8 @@ func main() {
 
     // set up signals so we handle the first shutdown signal gracefully
     stopCh := signals.SetupSignalHandler()
+
+    klog.Infof("Starting up...")
 
     cfg, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
     if err != nil {
@@ -59,7 +60,6 @@ func main() {
         klog.Fatalf("Error running controller: %s", err.Error())
     }
 }
-
 
 func init() {
     flag.StringVar(&kubeconfig, "kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")

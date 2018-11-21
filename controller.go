@@ -254,14 +254,14 @@ func (c *Controller) syncHandler(key string) error {
     return nil
 }
 
-func (c *Controller) manage(operation string, attributes map[string]string ) error {
+func (c *Controller) manage(operation string, attributes map[string]string) error {
     args := []string{"qdmanage"}
 
     args = append(args, "-b", "amqp://localhost:5762")
     args = append(args, operation)
 
     for k, v := range attributes {
-        args = append (args, k + "=" + v )
+        args = append(args, k+"="+v)
     }
 
     cmd := exec.Cmd{
@@ -278,36 +278,36 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
     baseName := tenantName
 
     c.manage("create", map[string]string{
-        "type":"connector",
-        "name":"connector/" + baseName,
-        "host": project.Spec.Host,
-        "port": strconv.Itoa(int(*project.Spec.Port)),
-        "role": "route-container",
+        "type":         "connector",
+        "name":         "connector/" + baseName,
+        "host":         project.Spec.Host,
+        "port":         strconv.Itoa(int(*project.Spec.Port)),
+        "role":         "route-container",
         "saslUsername": project.Spec.Username,
         "saslPassword": project.Spec.Password,
     })
 
     c.manage("create", map[string]string{
-        "type":"linkRoute",
-        "name":"linkRoute/t/" + baseName,
-        "direction": "in",
-        "pattern": "telemetry/" + tenantName + "/#",
+        "type":       "linkRoute",
+        "name":       "linkRoute/t/" + baseName,
+        "direction":  "in",
+        "pattern":    "telemetry/" + tenantName + "/#",
         "connection": "connector/" + baseName,
     })
 
     c.manage("create", map[string]string{
-        "type":"linkRoute",
-        "name":"linkRoute/e/" + baseName,
-        "direction": "in",
-        "pattern": "event/" + tenantName + "/#",
+        "type":       "linkRoute",
+        "name":       "linkRoute/e/" + baseName,
+        "direction":  "in",
+        "pattern":    "event/" + tenantName + "/#",
         "connection": "connector/" + baseName,
     })
 
     c.manage("create", map[string]string{
-        "type":"linkRoute",
-        "name":"linkRoute/c/" + baseName,
-        "direction": "in",
-        "pattern": "control/" + tenantName + "/#",
+        "type":       "linkRoute",
+        "name":       "linkRoute/c/" + baseName,
+        "direction":  "in",
+        "pattern":    "control/" + tenantName + "/#",
         "connection": "connector/" + baseName,
     })
 }
