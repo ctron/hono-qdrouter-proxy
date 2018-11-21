@@ -262,7 +262,7 @@ func (c *Controller) syncHandler(key string) error {
 }
 
 func (c *Controller) manage(operation string, attributes map[string]string) error {
-    args := []string{"/usr/bin/qdmanage"}
+    args := []string{}
 
     args = append(args, "-b", "amqp://localhost:5762")
     args = append(args, operation)
@@ -273,14 +273,17 @@ func (c *Controller) manage(operation string, attributes map[string]string) erro
 
     klog.Infof("Call: %s", args)
 
-    cmd := exec.Cmd{
-        Path: "qdmanage",
-        Args: args,
-        Stdout: os.Stdout,
-        Stderr: os.Stderr,
+    cmd := exec.Command("/usr/bin/qdmanage", args...)
+    cmd.Stdout = os.Stdout
+    cmd.Stderr = os.Stderr
+
+    err := cmd.Run()
+
+    if err != nil  {
+        klog.Infof("Result: %s", err.Error())
     }
 
-    return cmd.Run()
+    return err
 }
 
 func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
