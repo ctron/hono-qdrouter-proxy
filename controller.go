@@ -271,7 +271,7 @@ func (c *Controller) manage(operation string, attributes map[string]string) erro
         args = append(args, k+"="+v)
     }
 
-    klog.Infof("Call: %s", args)
+    klog.Infof("Call with args: %s", args)
 
     cmd := exec.Command("/usr/bin/qdmanage", args...)
     cmd.Stdout = os.Stdout
@@ -336,20 +336,20 @@ func (c *Controller) deleteLinkRoute(project *v1alpha1.IoTProject) {
     klog.Infof("Delete link routes - tenant: %s", tenantName)
 
     c.manage("delete", map[string]string{
-        "name": "connector/" + baseName,
-        "type": "connector",
+        "--name": "connector/" + baseName,
+        "--type": "connector",
     })
     c.manage("delete", map[string]string{
-        "name": "linkRoute/t/" + baseName,
-        "type": "linkRoute",
+        "--name": "linkRoute/t/" + baseName,
+        "--type": "linkRoute",
     })
     c.manage("delete", map[string]string{
-        "name": "linkRoute/e/" + baseName,
-        "type": "linkRoute",
+        "--name": "linkRoute/e/" + baseName,
+        "--type": "linkRoute",
     })
     c.manage("delete", map[string]string{
-        "name": "linkRoute/c/" + baseName,
-        "type": "linkRoute",
+        "--name": "linkRoute/c/" + baseName,
+        "--type": "linkRoute",
     })
 }
 
