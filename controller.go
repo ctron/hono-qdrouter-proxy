@@ -405,7 +405,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
         "type":       "linkRoute",
         "name":       "linkRoute/t/" + baseName,
         "direction":  "in",
-        "pattern":    "telemetry/" + tenantName + "/#",
+        "prefix":     "telemetry/" + tenantName,
         "connection": connectorName,
     })
 
@@ -413,7 +413,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
         "type":       "linkRoute",
         "name":       "linkRoute/e/" + baseName,
         "direction":  "in",
-        "pattern":    "event/" + tenantName + "/#",
+        "prefix":     "event/" + tenantName,
         "connection": connectorName,
     })
 
@@ -421,7 +421,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
         "type":       "linkRoute",
         "name":       "linkRoute/c_i/" + baseName,
         "direction":  "in",
-        "pattern":    "control/" + tenantName + "/#",
+        "prefix":     "control/" + tenantName,
         "connection": connectorName,
     })
 
@@ -429,7 +429,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
         "type":       "linkRoute",
         "name":       "linkRoute/c_o/" + baseName,
         "direction":  "out",
-        "pattern":    "control/" + tenantName + "/#",
+        "prefix":     "control/" + tenantName,
         "connection": "connector/" + baseName,
     })
 }
