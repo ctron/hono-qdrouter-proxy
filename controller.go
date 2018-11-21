@@ -387,11 +387,13 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
     tenantName := project.Namespace + "." + project.Name
     baseName := tenantName
 
+    connectorName := "connector/" + baseName
+
     klog.Infof("Create link routes - tenant: %s", tenantName)
 
     c.manage("create", map[string]string{
         "type":         "connector",
-        "name":         "connector/" + baseName,
+        "name":         connectorName,
         "host":         project.Spec.Host,
         "port":         strconv.Itoa(int(*project.Spec.Port)),
         "role":         "route-container",
@@ -402,17 +404,17 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
     c.manage("create", map[string]string{
         "type":       "linkRoute",
         "name":       "linkRoute/t/" + baseName,
-        "direction":  "in",
+        "direction":  "out",
         "pattern":    "telemetry/" + tenantName + "/#",
-        "connection": "connector/" + baseName,
+        "connection": connectorName,
     })
 
     c.manage("create", map[string]string{
         "type":       "linkRoute",
         "name":       "linkRoute/e/" + baseName,
-        "direction":  "in",
+        "direction":  "out",
         "pattern":    "event/" + tenantName + "/#",
-        "connection": "connector/" + baseName,
+        "connection": connectorName,
     })
 
     c.manage("create", map[string]string{
@@ -420,7 +422,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
         "name":       "linkRoute/c_i/" + baseName,
         "direction":  "in",
         "pattern":    "control/" + tenantName + "/#",
-        "connection": "connector/" + baseName,
+        "connection": connectorName,
     })
 
     c.manage("create", map[string]string{
