@@ -1,4 +1,4 @@
-FROM fedora:29
+FROM enmasseproject/qdrouterd-base:1.4.1
 
 RUN dnf update -y
 RUN dnf install -y golang procps-ng
