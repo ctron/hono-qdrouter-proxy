@@ -417,8 +417,16 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
 
     c.manage("create", map[string]string{
         "type":       "linkRoute",
-        "name":       "linkRoute/c/" + baseName,
+        "name":       "linkRoute/c_i/" + baseName,
         "direction":  "in",
+        "pattern":    "control/" + tenantName + "/#",
+        "connection": "connector/" + baseName,
+    })
+
+    c.manage("create", map[string]string{
+        "type":       "linkRoute",
+        "name":       "linkRoute/c_o/" + baseName,
+        "direction":  "out",
         "pattern":    "control/" + tenantName + "/#",
         "connection": "connector/" + baseName,
     })
@@ -444,7 +452,11 @@ func (c *Controller) deleteLinkRoute(project *v1alpha1.IoTProject) {
         "--type": "linkRoute",
     })
     c.manage("delete", map[string]string{
-        "--name": "linkRoute/c/" + baseName,
+        "--name": "linkRoute/c_i/" + baseName,
+        "--type": "linkRoute",
+    })
+    c.manage("delete", map[string]string{
+        "--name": "linkRoute/c_o/" + baseName,
         "--type": "linkRoute",
     })
 }
