@@ -388,7 +388,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
 
     tenantName := project.Namespace + "." + project.Name
     baseName := tenantName
-    addressTenantName := strings.Replace(tenantName, ".", "_", -1)
+    addressTenantName := tenantName
 
     connectorName := "connector-" + baseName
 
