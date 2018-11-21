@@ -390,7 +390,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
     baseName := tenantName
     addressTenantName := strings.Replace(tenantName, ".", "_", -1)
 
-    connectorName := "connector/" + baseName
+    connectorName := "connector-" + baseName
 
     klog.Infof("Create link routes - tenant: %s", tenantName)
 
@@ -442,6 +442,8 @@ func (c *Controller) deleteLinkRoute(project *v1alpha1.IoTProject) {
     tenantName := project.Namespace + "." + project.Name
     baseName := tenantName
 
+    connectorName := "connector-" + baseName
+
     klog.Infof("Delete link routes - tenant: %s", tenantName)
 
     c.manage("delete", map[string]string{
@@ -462,7 +464,7 @@ func (c *Controller) deleteLinkRoute(project *v1alpha1.IoTProject) {
     })
 
     c.manage("delete", map[string]string{
-        "--name": "connector/" + baseName,
+        "--name": connectorName,
         "--type": "connector",
     })
 }
