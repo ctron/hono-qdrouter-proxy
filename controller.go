@@ -433,7 +433,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
         "name":       "linkRoute/c_o/" + baseName,
         "direction":  "out",
         "pattern":    "control/" + addressTenantName + "/#",
-        "connection": "connector/" + baseName,
+        "connection": connectorName,
     })
 }
 
