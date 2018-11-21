@@ -365,8 +365,9 @@ func (c *Controller) resourceExists(typeName string, name string) ( bool, error 
 func (c *Controller) updateLinkRoute(project *v1alpha1.IoTProject) ( bool, error ) {
 
     tenantName := project.Namespace + "." + project.Name
+    baseName := tenantName
 
-    state, err := c.resourceExists("connector", "connector/" + tenantName)
+    state, err := c.resourceExists("connector", "connector/" + baseName)
 
     if err != nil {
         return false, err
@@ -386,6 +387,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
 
     tenantName := project.Namespace + "." + project.Name
     baseName := tenantName
+    addressTenantName := strings.Replace(tenantName, ".", "_", -1)
 
     connectorName := "connector/" + baseName
 
@@ -405,7 +407,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
         "type":       "linkRoute",
         "name":       "linkRoute/t/" + baseName,
         "direction":  "in",
-        "prefix":     "telemetry/" + tenantName,
+        "prefix":     "telemetry/" + addressTenantName,
         "connection": connectorName,
     })
 
@@ -413,7 +415,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
         "type":       "linkRoute",
         "name":       "linkRoute/e/" + baseName,
         "direction":  "in",
-        "prefix":     "event/" + tenantName,
+        "prefix":     "event/" + addressTenantName,
         "connection": connectorName,
     })
 
@@ -421,7 +423,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
         "type":       "linkRoute",
         "name":       "linkRoute/c_i/" + baseName,
         "direction":  "in",
-        "prefix":     "control/" + tenantName,
+        "prefix":     "control/" + addressTenantName,
         "connection": connectorName,
     })
 
