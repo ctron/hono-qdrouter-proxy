@@ -19,6 +19,7 @@ package main
 import (
     "fmt"
     "github.com/ctron/hono-qdrouter-proxy/pkg/apis/iotproject/v1alpha1"
+    "os"
     "os/exec"
     "strconv"
     "time"
@@ -267,6 +268,8 @@ func (c *Controller) manage(operation string, attributes map[string]string) erro
     cmd := exec.Cmd{
         Path: args[0],
         Args: args,
+        Stdout: os.Stdout,
+        Stderr: os.Stderr,
     }
 
     return cmd.Run()
