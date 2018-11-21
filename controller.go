@@ -249,13 +249,17 @@ func (c *Controller) syncHandler(key string) error {
     }
 
     // manage qdrouter
-    c.updateLinkRoute(project);
+    changed, err := c.updateLinkRoute(project)
 
     // If an error occurs during Update, we'll requeue the item so we can
-    // attempt processing again later. THis could have been caused by a
+    // attempt processing again later. This could have been caused by a
     // temporary network failure, or any other transient reason.
     if err != nil {
         return err
+    }
+
+    if !changed {
+        return nil
     }
 
     c.recorder.Event(project, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
@@ -364,24 +368,24 @@ func (c *Controller) resourceExists(typeName string, name string) ( bool, error 
     }
 }
 
-func (c *Controller) updateLinkRoute(project *v1alpha1.IoTProject) error {
+func (c *Controller) updateLinkRoute(project *v1alpha1.IoTProject) ( bool, error ) {
 
     tenantName := project.Namespace + "." + project.Name
 
     state, err := c.resourceExists("connector", "connector/" + tenantName)
 
     if err != nil {
-        return err
+        return false, err
     }
     if state {
         klog.Infof("Connector for %s already exists", tenantName)
-        return nil
+        return false, nil
     }
 
     c.deleteLinkRoute(project)
     c.createLinkRoute(project)
 
-    return nil
+    return true, nil
 }
 
 func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
