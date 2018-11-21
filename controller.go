@@ -445,10 +445,6 @@ func (c *Controller) deleteLinkRoute(project *v1alpha1.IoTProject) {
     klog.Infof("Delete link routes - tenant: %s", tenantName)
 
     c.manage("delete", map[string]string{
-        "--name": "connector/" + baseName,
-        "--type": "connector",
-    })
-    c.manage("delete", map[string]string{
         "--name": "linkRoute/t/" + baseName,
         "--type": "linkRoute",
     })
@@ -463,6 +459,11 @@ func (c *Controller) deleteLinkRoute(project *v1alpha1.IoTProject) {
     c.manage("delete", map[string]string{
         "--name": "linkRoute/c_o/" + baseName,
         "--type": "linkRoute",
+    })
+
+    c.manage("delete", map[string]string{
+        "--name": "connector/" + baseName,
+        "--type": "connector",
     })
 }
 
