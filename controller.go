@@ -404,7 +404,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
     c.manage("create", map[string]string{
         "type":       "linkRoute",
         "name":       "linkRoute/t/" + baseName,
-        "direction":  "out",
+        "direction":  "in",
         "pattern":    "telemetry/" + tenantName + "/#",
         "connection": connectorName,
     })
@@ -412,7 +412,7 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
     c.manage("create", map[string]string{
         "type":       "linkRoute",
         "name":       "linkRoute/e/" + baseName,
-        "direction":  "out",
+        "direction":  "in",
         "pattern":    "event/" + tenantName + "/#",
         "connection": connectorName,
     })
