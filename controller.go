@@ -265,6 +265,8 @@ func (c *Controller) manage(operation string, attributes map[string]string) erro
         args = append(args, k+"="+v)
     }
 
+    klog.Infof("Call: %s", args)
+
     cmd := exec.Cmd{
         Path: args[0],
         Args: args,
