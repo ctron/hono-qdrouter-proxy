@@ -54,10 +54,10 @@ const (
 
     // MessageResourceExists is the message used for Events when a resource
     // fails to sync due to a Deployment already existing
-    MessageResourceExists = "Resource %q already exists and is not managed by Foo"
+    MessageResourceExists = "Resource %q already exists and is not managed by Project"
     // MessageResourceSynced is the message used for an Event fired when a Foo
     // is synced successfully
-    MessageResourceSynced = "Foo synced successfully"
+    MessageResourceSynced = "Project synced successfully"
 )
 
 // Controller is the controller implementation for Foo resources
