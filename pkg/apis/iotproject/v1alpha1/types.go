@@ -11,12 +11,12 @@ type IoTProject struct {
     metav1.TypeMeta   `json:",inline"`
     metav1.ObjectMeta `json:"metadata,omitempty"'`
 
-    Spec IoTProjectSpec     `json:"spec"`
+    Spec IoTProjectSpec `json:"spec"`
 }
 
 type IoTProjectSpec struct {
-    Host string    `json:"host"`
-    Port *uint16   `json:"port"`
+    Host string  `json:"host"`
+    Port *uint16 `json:"port"`
 
     Username string `json:"username"`
     Password string `json:"password"`
