@@ -122,6 +122,7 @@ func NewController(
         },
         DeleteFunc: func(obj interface{}) {
             klog.Infof("Delete: %s", obj)
+            controller.enqueueFoo(obj)
         },
     })
 
