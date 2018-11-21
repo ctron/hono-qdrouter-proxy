@@ -277,7 +277,6 @@ func (c *Controller) manage(operation string, attributes map[string]string) ( st
     klog.Infof("Call with args: %s", args)
 
     cmd := exec.Command("/usr/bin/qdmanage", args...)
-    cmd.Stdout = os.Stdout
     cmd.Stderr = os.Stderr
 
     err := cmd.Run()
