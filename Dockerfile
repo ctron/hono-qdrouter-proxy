@@ -1,7 +1,7 @@
 FROM fedora:29
 
 RUN dnf update -y
-RUN dnf install -y golang
+RUN dnf install -y golang procps-ng
 
 RUN mkdir -p /root/go/src/github.com/ctron/hono-qdrouter-proxy
 ADD . /root/go/src/github.com/ctron/hono-qdrouter-proxy
