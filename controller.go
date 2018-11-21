@@ -110,11 +110,17 @@ func NewController(
     klog.Info("Setting up event handlers")
     // Set up an event handler for when Foo resources change
     projectInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-        AddFunc: controller.enqueueFoo,
+        AddFunc: func(obj interface{}) {
+            klog.Infof("Add: %s", obj)
+            controller.enqueueFoo(obj)
+        },
         UpdateFunc: func(old, new interface{}) {
+            klog.Infof("Update - old: %s, new: %s", old, new)
             controller.enqueueFoo(new)
         },
-        DeleteFunc: controller.enqueueFoo,
+        DeleteFunc: func(obj interface{}) {
+            klog.Infof("Delete: %s", obj)
+        },
     })
 
     return controller
