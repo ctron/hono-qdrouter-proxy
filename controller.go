@@ -17,11 +17,13 @@ limitations under the License.
 package main
 
 import (
+    json2 "encoding/json"
     "fmt"
     "github.com/ctron/hono-qdrouter-proxy/pkg/apis/iotproject/v1alpha1"
     "os"
     "os/exec"
     "strconv"
+    "strings"
     "time"
 
     corev1 "k8s.io/api/core/v1"
@@ -247,8 +249,7 @@ func (c *Controller) syncHandler(key string) error {
     }
 
     // manage qdrouter
-    c.deleteLinkRoute(project)
-    c.createLinkRoute(project)
+    c.updateLinkRoute(project);
 
     // If an error occurs during Update, we'll requeue the item so we can
     // attempt processing again later. THis could have been caused by a
@@ -261,11 +262,13 @@ func (c *Controller) syncHandler(key string) error {
     return nil
 }
 
-func (c *Controller) manage(operation string, attributes map[string]string) error {
-    args := []string{}
+type ResourceNotFoundError struct {
+}
 
-    args = append(args, "-b", "amqp://localhost:5762")
-    args = append(args, operation)
+func (e *ResourceNotFoundError) Error() string { return "Resource not found" }
+
+func (c *Controller) manage(operation string, attributes map[string]string) ( string, error ) {
+    args := []string{ "-b", "amqp://localhost:5762", operation }
 
     for k, v := range attributes {
         args = append(args, k+"="+v)
@@ -279,11 +282,107 @@ func (c *Controller) manage(operation string, attributes map[string]string) erro
 
     err := cmd.Run()
 
-    if err != nil  {
-        klog.Infof("Result: %s", err.Error())
+    out, err := cmd.Output()
+    if err != nil {
+        return "", err
     }
 
-    return err
+    text := string(out)
+
+    if _, ok := err.(*exec.ExitError); ok {
+        if strings.HasPrefix(text, "NotFoundStatus:") {
+            return "", &ResourceNotFoundError{}
+        } else {
+            return "", err
+        }
+    }
+
+    if err != nil  {
+        klog.Infof("Result: %s", err.Error())
+        return "", err
+    } else {
+        return string(text), nil
+    }
+}
+
+type RouterResource struct {
+    Type string `json:"type"`
+    Name string `json:"name"`
+}
+
+type LinkRoute struct {
+    RouterResource
+    Direction string `json:"direction"`
+    Pattern string `json:"pattern"`
+}
+
+type Connector struct {
+    RouterResource
+    Host string `json:"host"`
+    Port uint16 `json:"port"`
+    SASLUsername string `json:"saslUsername"`
+    SASLPassword string `json:"saslPassword"`
+}
+
+func (c *Controller) getResource(typeName string, name string) ( string, error ) {
+    out, err := c.manage("read", map[string]string{
+        "--type": typeName,
+        "--name": name,
+    })
+    if err != nil {
+        return "", err
+    } else {
+        return out, nil
+    }
+}
+
+func (c *Controller) getResourceConnector(name string) ( *Connector, error ) {
+    json, err := c.getResource("connector", name)
+    if err != nil {
+        return nil, err
+    } else {
+        var connector Connector
+        err := json2.Unmarshal([]byte(json), &connector)
+        if err != nil {
+            return nil, err
+        } else {
+            return &connector, nil
+        }
+    }
+}
+
+func (c *Controller) resourceExists(typeName string, name string) ( bool, error ) {
+    _, err := c.getResource(typeName, name)
+
+    if err != nil {
+        if _, ok := err.(*ResourceNotFoundError); ok {
+            return false, nil
+        } else {
+            return false, err
+        }
+    } else {
+        return true, nil
+    }
+}
+
+func (c *Controller) updateLinkRoute(project *v1alpha1.IoTProject) error {
+
+    tenantName := project.Namespace + "." + project.Name
+
+    state, err := c.resourceExists("connector", "connector/" + tenantName)
+
+    if err != nil {
+        return err
+    }
+    if state {
+        klog.Infof("Connector for %s already exists", tenantName)
+        return nil
+    }
+
+    c.deleteLinkRoute(project)
+    c.createLinkRoute(project)
+
+    return nil
 }
 
 func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
