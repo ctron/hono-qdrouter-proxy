@@ -273,7 +273,7 @@ type ResourceNotFoundError struct {
 func (e *ResourceNotFoundError) Error() string { return "Resource not found" }
 
 func (c *Controller) manage(operation string, attributes map[string]string) ( string, error ) {
-    args := []string{ "-b", "amqp://localhost:5762", operation }
+    args := []string{ "-b", "amqp://localhost:5672", operation }
 
     for k, v := range attributes {
         args = append(args, k+"="+v)
