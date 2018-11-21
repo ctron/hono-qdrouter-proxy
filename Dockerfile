@@ -6,6 +6,6 @@ RUN dnf install -y golang procps-ng
 RUN mkdir -p /root/go/src/github.com/ctron/hono-qdrouter-proxy
 ADD . /root/go/src/github.com/ctron/hono-qdrouter-proxy
 
-RUN go build -o /hono-qdrouter-proxy /root/go/src/github.com/ctron/hono-qdrouter-proxy
+RUN cd /root/go/src/github.com/ctron/hono-qdrouter-proxy && go build -o /hono-qdrouter-proxy .
 
 ENTRYPOINT /hono-qdrouter-proxy
