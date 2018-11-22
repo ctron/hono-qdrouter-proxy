@@ -243,7 +243,7 @@ func (c *Controller) syncHandler(key string) error {
         // processing.
         if errors.IsNotFound(err) {
 
-            err = c.deleteLinkRoute(project)
+            err = c.deleteLinkRoute(namespace, name)
 
             runtime.HandleError(fmt.Errorf("project '%s' in work queue no longer exists", key))
             return err
@@ -485,9 +485,9 @@ func (c *Controller) deleteResource(typeName string, name string) error {
     return err
 }
 
-func (c *Controller) deleteLinkRoute(project *v1alpha1.IoTProject) error {
+func (c *Controller) deleteLinkRoute(namespace string, name string) error {
 
-    tenantName := project.Namespace + "." + project.Name
+    tenantName := namespace + "." + name
     baseName := tenantName
     connectorName := "connector-" + baseName
 
