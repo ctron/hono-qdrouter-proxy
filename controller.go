@@ -243,17 +243,17 @@ func (c *Controller) syncHandler(key string) error {
         // processing.
         if errors.IsNotFound(err) {
 
-            c.deleteLinkRoute(project)
+            err = c.deleteLinkRoute(project)
 
             runtime.HandleError(fmt.Errorf("project '%s' in work queue no longer exists", key))
-            return nil
+            return err
         }
 
         return err
     }
 
     // manage qdrouter
-    changed, err := c.updateLinkRoute(project)
+    changed, err := c.syncLinkRoute(project)
 
     // If an error occurs during Update, we'll requeue the item so we can
     // attempt processing again later. This could have been caused by a
@@ -349,40 +349,15 @@ func (c *Controller) resourceExists(typeName string, name string) ( bool, error 
     }
 }
 
-func (c *Controller) updateLinkRoute(project *v1alpha1.IoTProject) ( bool, error ) {
-
-    tenantName := project.Namespace + "." + project.Name
-    baseName := tenantName
-
-    state, err := c.resourceExists("connector", "connector/" + baseName)
-
-    if err != nil {
-        return false, err
-    }
-    if state {
-        klog.Infof("Connector for %s already exists", tenantName)
-        return false, nil
-    }
-
-    if err := c.deleteLinkRoute(project); err != nil {
-        return false, err
-    }
-    if err := c.createLinkRoute(project); err != nil {
-        return false, err
-    }
-
-    return true, nil
-}
-
-func (c *Controller) syncLinkRoute(route qdr.LinkRoute) error {
+func (c *Controller) syncLinkRoute(route qdr.LinkRoute) (bool, error ) {
 
     current, err := c.getResourceAsObject("linkRoute", route.Name, new(qdr.LinkRoute))
     if err != nil {
-        return err
+        return false, err
     }
 
     if reflect.DeepEqual(current, route) {
-        return nil
+        return false, nil
     }
 
     c.deleteResource("linkRoute", route.Name)
@@ -395,19 +370,19 @@ func (c *Controller) syncLinkRoute(route qdr.LinkRoute) error {
         "connection": route.Connection,
     })
 
-    return err
+    return true, err
 
 }
 
-func (c *Controller) syncConnector(connector qdr.Connector) error {
+func (c *Controller) syncConnector(connector qdr.Connector) ( bool, error ) {
 
     current, err := c.getResourceAsObject("connector", connector.Name, new(qdr.Connector))
     if err != nil {
-        return err
+        return false, err
     }
 
     if reflect.DeepEqual(current, connector) {
-        return nil
+        return false, nil
     }
 
     c.deleteResource("connector", connector.Name)
@@ -422,10 +397,10 @@ func (c *Controller) syncConnector(connector qdr.Connector) error {
         "saslPassword": connector.SASLPassword,
     })
 
-    return err
+    return true, err
 }
 
-func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) error {
+func (c *Controller) syncProject(project *v1alpha1.IoTProject) (bool, error ) {
 
     tenantName := project.Namespace + "." + project.Name
     baseName := tenantName
@@ -435,54 +410,66 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) error {
 
     klog.Infof("Create link routes - tenant: %s", tenantName)
 
-    if err := c.syncConnector(qdr.Connector{
+    var change bool = false
+
+    res, err := c.syncConnector(qdr.Connector{
         RouterResource: qdr.RouterResource{ Name: connectorName, Type: "connector", },
         Host: project.Spec.Host,
         Port: project.Spec.Port,
         Role: "route-container",
         SASLUsername: project.Spec.Username,
         SASLPassword: project.Spec.Password,
-    }); err != nil {
-        return err
+    })
+    if err != nil {
+        return false, err
     }
+    change = change || res
 
-    if err := c.syncLinkRoute(qdr.LinkRoute{
+    res, err = c.syncLinkRoute(qdr.LinkRoute{
         RouterResource: qdr.RouterResource{ Name: "linkRoute/t/" + baseName, Type: "linkRoute", },
         Direction: "in",
         Pattern: "telemetry/" + addressTenantName + "/#",
         Connection: connectorName,
-    }); err != nil {
-        return err
+    })
+    if err != nil {
+        return false, err
     }
+    change = change || res
 
-    if err := c.syncLinkRoute(qdr.LinkRoute{
+    res, err = c.syncLinkRoute(qdr.LinkRoute{
         RouterResource: qdr.RouterResource{ Name: "linkRoute/e/" + baseName, Type: "linkRoute", },
         Direction: "in",
         Pattern: "event/" + addressTenantName + "/#",
         Connection: connectorName,
-    }); err != nil {
-        return err
+    })
+    if err != nil {
+        return false, err
     }
+    change = change || res
 
-    if err := c.syncLinkRoute(qdr.LinkRoute{
+    res, err = c.syncLinkRoute(qdr.LinkRoute{
         RouterResource: qdr.RouterResource{ Name: "linkRoute/c_i/" + baseName, Type: "linkRoute", },
         Direction: "in",
         Pattern: "control/" + addressTenantName + "/#",
         Connection: connectorName,
-    }); err != nil {
-        return err
+    })
+    if err != nil {
+        return false, err
     }
+    change = change || res
 
-    if err := c.syncLinkRoute(qdr.LinkRoute{
+    res, err = c.syncLinkRoute(qdr.LinkRoute{
         RouterResource: qdr.RouterResource{ Name: "linkRoute/c_o/" + baseName, Type: "linkRoute", },
         Direction: "out",
         Pattern: "control/" + addressTenantName + "/#",
         Connection: connectorName,
-    }); err != nil {
-        return err
+    })
+    if err != nil {
+        return false, err
     }
+    change = change || res
 
-    return nil
+    return change, nil
 }
 
 func (c *Controller) deleteResource(typeName string, name string) error {
