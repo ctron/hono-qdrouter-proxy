@@ -360,7 +360,9 @@ func (c *Controller) syncLinkRoute(route qdr.LinkRoute) (bool, error ) {
         return false, nil
     }
 
-    c.deleteResource("linkRoute", route.Name)
+    if current != nil {
+        c.deleteResource("linkRoute", route.Name)
+    }
 
     _, err = c.manage("create", map[string]string{
         "type":       "linkRoute",
@@ -385,7 +387,9 @@ func (c *Controller) syncConnector(connector qdr.Connector) ( bool, error ) {
         return false, nil
     }
 
-    c.deleteResource("connector", connector.Name)
+    if current != nil {
+        c.deleteResource("connector", connector.Name)
+    }
 
     _, err = c.manage("create", map[string]string{
         "type":         "connector",
