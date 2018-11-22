@@ -373,7 +373,6 @@ func (c *Controller) syncLinkRoute(route qdr.LinkRoute) (bool, error ) {
     })
 
     return true, err
-
 }
 
 func (c *Controller) syncConnector(connector qdr.Connector) ( bool, error ) {
