@@ -253,7 +253,7 @@ func (c *Controller) syncHandler(key string) error {
     }
 
     // manage qdrouter
-    changed, err := c.syncLinkRoute(project)
+    changed, err := c.syncProject(project)
 
     // If an error occurs during Update, we'll requeue the item so we can
     // attempt processing again later. This could have been caused by a
