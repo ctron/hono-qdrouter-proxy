@@ -244,6 +244,7 @@ func (c *Controller) syncHandler(key string) error {
         if errors.IsNotFound(err) {
 
             err = c.deleteLinkRoute(namespace, name)
+            c.recorder.Event(project, corev1.EventTypeNormal, SuccessSynced, MessageResourceSynced)
 
             runtime.HandleError(fmt.Errorf("project '%s' in work queue no longer exists", key))
             return err
