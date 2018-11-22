@@ -383,6 +383,9 @@ func (c *Controller) syncConnector(connector qdr.Connector) ( bool, error ) {
         return false, err
     }
 
+    klog.Info(current)
+    klog.Info(connector)
+
     if reflect.DeepEqual(current, connector) {
         return false, nil
     }
