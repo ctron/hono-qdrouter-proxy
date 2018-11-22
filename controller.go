@@ -22,6 +22,7 @@ import (
     "github.com/ctron/hono-qdrouter-proxy/pkg/apis/iotproject/v1alpha1"
     "os"
     "os/exec"
+    "reflect"
     "strconv"
     "strings"
     "time"
@@ -44,6 +45,8 @@ import (
     iotscheme "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned/scheme"
     informers "github.com/ctron/hono-qdrouter-proxy/pkg/client/informers/externalversions/iotproject/v1alpha1"
     listers "github.com/ctron/hono-qdrouter-proxy/pkg/client/listers/iotproject/v1alpha1"
+
+    "github.com/ctron/hono-qdrouter-proxy/pkg/qdr"
 )
 
 const controllerAgentName = "sample-controller"
@@ -303,63 +306,46 @@ func (c *Controller) manage(operation string, attributes map[string]string) ( st
     }
 }
 
-type RouterResource struct {
-    Type string `json:"type"`
-    Name string `json:"name"`
-}
-
-type LinkRoute struct {
-    RouterResource
-    Direction string `json:"direction"`
-    Pattern string `json:"pattern"`
-}
-
-type Connector struct {
-    RouterResource
-    Host string `json:"host"`
-    Port uint16 `json:"port"`
-    SASLUsername string `json:"saslUsername"`
-    SASLPassword string `json:"saslPassword"`
-}
-
 func (c *Controller) getResource(typeName string, name string) ( string, error ) {
     out, err := c.manage("read", map[string]string{
         "--type": typeName,
         "--name": name,
     })
     if err != nil {
-        return "", err
+        if _, ok := err.(*ResourceNotFoundError); ok {
+            return "", nil
+        } else {
+            return "", err
+        }
     } else {
         return out, nil
     }
 }
 
-func (c *Controller) getResourceConnector(name string) ( *Connector, error ) {
-    json, err := c.getResource("connector", name)
+func (c *Controller) getResourceAsObject(typeName string, name string, v interface{})  ( interface{}, error ) {
+    json, err := c.getResource(typeName, name)
     if err != nil {
         return nil, err
     } else {
-        var connector Connector
-        err := json2.Unmarshal([]byte(json), &connector)
+        if json == "" {
+            return nil, nil
+        }
+        err := json2.Unmarshal([]byte(json), &v)
         if err != nil {
             return nil, err
         } else {
-            return &connector, nil
+            return v, nil
         }
     }
 }
 
 func (c *Controller) resourceExists(typeName string, name string) ( bool, error ) {
-    _, err := c.getResource(typeName, name)
+    str, err := c.getResource(typeName, name)
 
     if err != nil {
-        if _, ok := err.(*ResourceNotFoundError); ok {
-            return false, nil
-        } else {
-            return false, err
-        }
+        return false, err
     } else {
-        return true, nil
+        return str != "", nil
     }
 }
 
@@ -378,13 +364,68 @@ func (c *Controller) updateLinkRoute(project *v1alpha1.IoTProject) ( bool, error
         return false, nil
     }
 
-    c.deleteLinkRoute(project)
-    c.createLinkRoute(project)
+    if err := c.deleteLinkRoute(project); err != nil {
+        return false, err
+    }
+    if err := c.createLinkRoute(project); err != nil {
+        return false, err
+    }
 
     return true, nil
 }
 
-func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
+func (c *Controller) syncLinkRoute(route qdr.LinkRoute) error {
+
+    current, err := c.getResourceAsObject("linkRoute", route.Name, new(qdr.LinkRoute))
+    if err != nil {
+        return err
+    }
+
+    if reflect.DeepEqual(current, route) {
+        return nil
+    }
+
+    c.deleteResource("linkRoute", route.Name)
+
+    _, err = c.manage("create", map[string]string{
+        "type":       "linkRoute",
+        "name":       route.Name,
+        "direction":  route.Direction,
+        "pattern":    route.Pattern,
+        "connection": route.Connection,
+    })
+
+    return err
+
+}
+
+func (c *Controller) syncConnector(connector qdr.Connector) error {
+
+    current, err := c.getResourceAsObject("connector", connector.Name, new(qdr.Connector))
+    if err != nil {
+        return err
+    }
+
+    if reflect.DeepEqual(current, connector) {
+        return nil
+    }
+
+    c.deleteResource("connector", connector.Name)
+
+    _, err = c.manage("create", map[string]string{
+        "type":         "connector",
+        "name":         connector.Name,
+        "host":         connector.Host,
+        "port":         strconv.Itoa(int(connector.Port)),
+        "role":         connector.Role,
+        "saslUsername": connector.SASLUsername,
+        "saslPassword": connector.SASLPassword,
+    })
+
+    return err
+}
+
+func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) error {
 
     tenantName := project.Namespace + "." + project.Name
     baseName := tenantName
@@ -394,79 +435,91 @@ func (c *Controller) createLinkRoute(project *v1alpha1.IoTProject) {
 
     klog.Infof("Create link routes - tenant: %s", tenantName)
 
-    c.manage("create", map[string]string{
-        "type":         "connector",
-        "name":         connectorName,
-        "host":         project.Spec.Host,
-        "port":         strconv.Itoa(int(*project.Spec.Port)),
-        "role":         "route-container",
-        "saslUsername": project.Spec.Username,
-        "saslPassword": project.Spec.Password,
-    })
+    if err := c.syncConnector(qdr.Connector{
+        RouterResource: qdr.RouterResource{ Name: connectorName, Type: "connector", },
+        Host: project.Spec.Host,
+        Port: project.Spec.Port,
+        Role: "route-container",
+        SASLUsername: project.Spec.Username,
+        SASLPassword: project.Spec.Password,
+    }); err != nil {
+        return err
+    }
 
-    c.manage("create", map[string]string{
-        "type":       "linkRoute",
-        "name":       "linkRoute/t/" + baseName,
-        "direction":  "in",
-        "pattern":    "telemetry/" + addressTenantName + "/#",
-        "connection": connectorName,
-    })
+    if err := c.syncLinkRoute(qdr.LinkRoute{
+        RouterResource: qdr.RouterResource{ Name: "linkRoute/t/" + baseName, Type: "linkRoute", },
+        Direction: "in",
+        Pattern: "telemetry/" + addressTenantName + "/#",
+        Connection: connectorName,
+    }); err != nil {
+        return err
+    }
 
-    c.manage("create", map[string]string{
-        "type":       "linkRoute",
-        "name":       "linkRoute/e/" + baseName,
-        "direction":  "in",
-        "pattern":    "event/" + addressTenantName + "/#",
-        "connection": connectorName,
-    })
+    if err := c.syncLinkRoute(qdr.LinkRoute{
+        RouterResource: qdr.RouterResource{ Name: "linkRoute/e/" + baseName, Type: "linkRoute", },
+        Direction: "in",
+        Pattern: "event/" + addressTenantName + "/#",
+        Connection: connectorName,
+    }); err != nil {
+        return err
+    }
 
-    c.manage("create", map[string]string{
-        "type":       "linkRoute",
-        "name":       "linkRoute/c_i/" + baseName,
-        "direction":  "in",
-        "pattern":    "control/" + addressTenantName + "/#",
-        "connection": connectorName,
-    })
+    if err := c.syncLinkRoute(qdr.LinkRoute{
+        RouterResource: qdr.RouterResource{ Name: "linkRoute/c_i/" + baseName, Type: "linkRoute", },
+        Direction: "in",
+        Pattern: "control/" + addressTenantName + "/#",
+        Connection: connectorName,
+    }); err != nil {
+        return err
+    }
 
-    c.manage("create", map[string]string{
-        "type":       "linkRoute",
-        "name":       "linkRoute/c_o/" + baseName,
-        "direction":  "out",
-        "pattern":    "control/" + addressTenantName + "/#",
-        "connection": connectorName,
-    })
+    if err := c.syncLinkRoute(qdr.LinkRoute{
+        RouterResource: qdr.RouterResource{ Name: "linkRoute/c_o/" + baseName, Type: "linkRoute", },
+        Direction: "out",
+        Pattern: "control/" + addressTenantName + "/#",
+        Connection: connectorName,
+    }); err != nil {
+        return err
+    }
+
+    return nil
 }
 
-func (c *Controller) deleteLinkRoute(project *v1alpha1.IoTProject) {
+func (c *Controller) deleteResource(typeName string, name string) error {
+
+    _, err :=c.manage("delete", map[string]string{
+        "--name": name,
+        "--type": typeName,
+    })
+
+    return err
+}
+
+func (c *Controller) deleteLinkRoute(project *v1alpha1.IoTProject) error {
 
     tenantName := project.Namespace + "." + project.Name
     baseName := tenantName
-
     connectorName := "connector-" + baseName
 
     klog.Infof("Delete link routes - tenant: %s", tenantName)
 
-    c.manage("delete", map[string]string{
-        "--name": "linkRoute/t/" + baseName,
-        "--type": "linkRoute",
-    })
-    c.manage("delete", map[string]string{
-        "--name": "linkRoute/e/" + baseName,
-        "--type": "linkRoute",
-    })
-    c.manage("delete", map[string]string{
-        "--name": "linkRoute/c_i/" + baseName,
-        "--type": "linkRoute",
-    })
-    c.manage("delete", map[string]string{
-        "--name": "linkRoute/c_o/" + baseName,
-        "--type": "linkRoute",
-    })
+    if err := c.deleteResource("linkRoute", "linkRoute/t/" + baseName); err != nil {
+        return err
+    }
+    if err := c.deleteResource("linkRoute", "linkRoute/e/" + baseName); err != nil {
+        return err
+    }
+    if err := c.deleteResource("linkRoute", "linkRoute/c_i/" + baseName); err != nil {
+        return err
+    }
+    if err := c.deleteResource("linkRoute", "linkRoute/c_o/" + baseName); err != nil {
+        return err
+    }
+    if err := c.deleteResource("connector", connectorName); err != nil {
+        return err
+    }
 
-    c.manage("delete", map[string]string{
-        "--name": connectorName,
-        "--type": "connector",
-    })
+    return nil
 }
 
 // enqueueFoo takes a Foo resource and converts it into a namespace/name
