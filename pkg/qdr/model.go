@@ -20,3 +20,6 @@ type Connector struct {
     SASLUsername string `json:"saslUsername"`
     SASLPassword string `json:"saslPassword"`
 }
+
+const TYPE_NAME_CONNECTOR string = "org.apache.qpid.dispatch.connector"
+const TYPE_NAME_LINK_ROUTE string = "org.apache.qpid.dispatch.linkRoute"
