@@ -395,7 +395,7 @@ func (c *Controller) syncConnector(connector qdr.Connector) ( bool, error ) {
         "type":         "connector",
         "name":         connector.Name,
         "host":         connector.Host,
-        "port":         strconv.Itoa(int(connector.Port)),
+        "port":         connector.Port,
         "role":         connector.Role,
         "saslUsername": connector.SASLUsername,
         "saslPassword": connector.SASLPassword,
@@ -419,7 +419,7 @@ func (c *Controller) syncProject(project *v1alpha1.IoTProject) (bool, error ) {
     res, err := c.syncConnector(qdr.Connector{
         RouterResource: qdr.RouterResource{ Name: connectorName, Type: "connector", },
         Host: project.Spec.Host,
-        Port: project.Spec.Port,
+        Port: strconv.Itoa(int(project.Spec.Port)),
         Role: "route-container",
         SASLUsername: project.Spec.Username,
         SASLPassword: project.Spec.Password,

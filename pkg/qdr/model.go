@@ -15,7 +15,7 @@ type LinkRoute struct {
 type Connector struct {
     RouterResource
     Host string `json:"host"`
-    Port uint16 `json:"port"`
+    Port string `json:"port"` // yes, port is a string, as it could be named port
     Role string `json:"role"`
     SASLUsername string `json:"saslUsername"`
     SASLPassword string `json:"saslPassword"`
