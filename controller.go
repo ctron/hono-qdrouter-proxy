@@ -356,7 +356,7 @@ func (c *Controller) syncLinkRoute(route qdr.LinkRoute) (bool, error ) {
         return false, err
     }
 
-    if reflect.DeepEqual(current.(*qdr.LinkRoute), &route) {
+    if current != nil && reflect.DeepEqual(current.(*qdr.LinkRoute), &route) {
         return false, nil
     }
 
@@ -383,7 +383,7 @@ func (c *Controller) syncConnector(connector qdr.Connector) ( bool, error ) {
         return false, err
     }
 
-    if reflect.DeepEqual(current.(*qdr.Connector), &connector) {
+    if current != nil && reflect.DeepEqual(current.(*qdr.Connector), &connector) {
         return false, nil
     }
 
