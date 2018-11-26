@@ -253,9 +253,9 @@ func (c *Controller) syncResource(currentPointer interface{}, resource qdr.Route
     }
 
     klog.Infof("Current: %s", currentPointer)
-    klog.Infof("Request: %s", resource)
+    klog.Infof("Request: %s", &resource)
 
-    if found && reflect.DeepEqual(currentPointer, resource) {
+    if found && reflect.DeepEqual(currentPointer, &resource) {
         return false, nil
     }
 
@@ -283,7 +283,7 @@ func (c *Controller) syncLinkRoute(route qdr.LinkRoute) (bool, error) {
 
 func (c *Controller) syncConnector(connector qdr.Connector) (bool, error) {
 
-    return c.syncResource(new(qdr.Connector), connector, func() map[string]string {
+    return c.syncResource(&qdr.Connector{}, connector, func() map[string]string {
         return map[string]string{
             "host":         connector.Host,
             "port":         connector.Port,
