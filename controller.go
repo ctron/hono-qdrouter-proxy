@@ -245,26 +245,36 @@ func (c *Controller) syncHandler(key string) error {
     return nil
 }
 
-func (c *Controller) syncResource(currentPointer interface{}, resource qdr.RouterResource, creator func() map[string]string) (bool, error) {
+func (c *Controller) syncResource(currentPointer interface{}, resource interface{}, creator func() map[string]string) (bool, error) {
 
-    found, err := c.manage.ReadAsObject(resource, currentPointer)
+    r, ok := resource.(qdr.RouterResource)
+
+    if !ok {
+        return false, fmt.Errorf("requested resource must implement 'qdr.RouterResource'")
+    }
+
+    found, err := c.manage.ReadAsObject(r, currentPointer)
     if err != nil {
         return false, err
     }
 
-    klog.Infof("Found: %s", found)
-    klog.Infof("Current: %s", currentPointer)
-    klog.Infof("Request: %s", &resource)
+    klog.V(4).Infof("Found: %s", found)
+    klog.V(4).Infof("Current: %s", currentPointer)
+    klog.V(4).Infof("Request: %s", resource)
 
-    if found && reflect.DeepEqual(currentPointer, &resource) {
-        return false, nil
+    if found {
+        equals := reflect.DeepEqual(currentPointer, resource)
+        klog.V(4).Infof("Equals: %s", equals)
+        if equals {
+            return false, nil
+        }
     }
 
     if found {
-        c.manage.Delete(resource)
+        c.manage.Delete(r)
     }
 
-    _, err = c.manage.Create(resource, creator())
+    _, err = c.manage.Create(r, creator())
 
     return true, err
 
@@ -272,7 +282,7 @@ func (c *Controller) syncResource(currentPointer interface{}, resource qdr.Route
 
 func (c *Controller) syncLinkRoute(route qdr.LinkRoute) (bool, error) {
 
-    return c.syncResource(&qdr.LinkRoute{}, route, func() map[string]string {
+    return c.syncResource(&qdr.LinkRoute{}, &route, func() map[string]string {
         return map[string]string{
             "direction":  route.Direction,
             "pattern":    route.Pattern,
@@ -284,7 +294,7 @@ func (c *Controller) syncLinkRoute(route qdr.LinkRoute) (bool, error) {
 
 func (c *Controller) syncConnector(connector qdr.Connector) (bool, error) {
 
-    return c.syncResource(&qdr.Connector{}, connector, func() map[string]string {
+    return c.syncResource(&qdr.Connector{}, &connector, func() map[string]string {
         return map[string]string{
             "host":         connector.Host,
             "port":         connector.Port,
@@ -296,33 +306,6 @@ func (c *Controller) syncConnector(connector qdr.Connector) (bool, error) {
 
 }
 
-/*
-func (c *Controller) syncConnector(connector qdr.Connector) (bool, error) {
-
-    current, err := c.manage.ReadAsObject(qdr.TYPE_NAME_CONNECTOR, connector.Name, new(qdr.Connector))
-    if err != nil {
-        return false, err
-    }
-
-    if current != nil && reflect.DeepEqual(current.(*qdr.Connector), &connector) {
-        return false, nil
-    }
-
-    if current != nil {
-        c.manage.Delete(qdr.TYPE_NAME_CONNECTOR, connector.Name)
-    }
-
-    _, err = c.manage.Create(connector.Type, connector.Name, map[string]string{
-        "host":         connector.Host,
-        "port":         connector.Port,
-        "role":         connector.Role,
-        "saslUsername": connector.SASLUsername,
-        "saslPassword": connector.SASLPassword,
-    })
-
-    return true, err
-}
-*/
 func (c *Controller) syncProject(project *v1alpha1.IoTProject) (bool, error) {
 
     tenantName := project.Namespace + "." + project.Name
