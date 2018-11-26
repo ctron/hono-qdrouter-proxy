@@ -247,11 +247,12 @@ func (c *Controller) syncHandler(key string) error {
 
 func (c *Controller) syncResource(currentPointer interface{}, resource qdr.RouterResource, creator func() map[string]string) (bool, error) {
 
-    found, err := c.manage.ReadAsObject(resource, &currentPointer)
+    found, err := c.manage.ReadAsObject(resource, currentPointer)
     if err != nil {
         return false, err
     }
 
+    klog.Infof("Found: %s", found)
     klog.Infof("Current: %s", currentPointer)
     klog.Infof("Request: %s", &resource)
 
