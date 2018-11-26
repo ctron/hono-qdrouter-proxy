@@ -36,6 +36,7 @@ func NewWithUrl(URL string) Manage {
 
 // Call a manage operation
 func (m *Manage) Manage(operation string, attributes map[string]string) (string, error) {
+
     var args []string;
     if m.URL != "" {
         args = append(args, "-b", m.URL)
@@ -47,7 +48,7 @@ func (m *Manage) Manage(operation string, attributes map[string]string) (string,
         args = append(args, k+"="+v)
     }
 
-    klog.Infof("Call with args: %s", args)
+    klog.Infof("Call with args: %s - %s", m.Command, args)
 
     cmd := exec.Command(m.Command, args...)
     cmd.Stderr = os.Stderr
