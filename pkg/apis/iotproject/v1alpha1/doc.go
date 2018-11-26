@@ -4,6 +4,6 @@
  */
 
 // +k8s:deepcopy-gen=package
-// +groupName=hono.eclipe.org
+// +groupName=hono.eclipse.org
 
 package v1alpha1

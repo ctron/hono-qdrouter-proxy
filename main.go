@@ -56,7 +56,8 @@ func main() {
 
     controller := NewController(
         kubeClient, iotClient,
-        iotInformerFactory.Hono().V1alpha1().IoTProjects())
+        iotInformerFactory.Hono().V1alpha1().IoTProjects(),
+    )
 
     iotInformerFactory.Start(stopCh)
 
