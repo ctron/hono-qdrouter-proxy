@@ -254,6 +254,9 @@ func (c *Controller) syncResource(resource qdr.RouterResource, creator func() ma
         return false, err
     }
 
+    klog.Infof("Current: %s", current)
+    klog.Infof("Request: %s", resource)
+
     if found && reflect.DeepEqual(current, &resource) {
         return false, nil
     }
