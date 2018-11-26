@@ -1,9 +1,15 @@
+/*
+ * Copyright 2018, EnMasse authors.
+ * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
+ */
+
 package main
 
 import (
     "flag"
     "os"
 
+    iot "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned"
     "github.com/ctron/hono-qdrouter-proxy/pkg/signals"
 
     "k8s.io/client-go/kubernetes"
@@ -12,7 +18,6 @@ import (
 
     "time"
 
-    clientset "github.com/ctron/hono-qdrouter-proxy/pkg/client/clientset/versioned"
     informers "github.com/ctron/hono-qdrouter-proxy/pkg/client/informers/externalversions"
 )
 
@@ -24,10 +29,11 @@ var (
 func main() {
     flag.Parse()
 
+    // init log system
     klog.SetOutput(os.Stdout)
 
-    // set up signals so we handle the first shutdown signal gracefully
-    stopCh := signals.SetupSignalHandler()
+    // install signal handler for graceful shutdown, or hard exit
+    stopCh := signals.InstallSignalHandler()
 
     klog.Infof("Starting up...")
 
@@ -38,29 +44,23 @@ func main() {
 
     kubeClient, err := kubernetes.NewForConfig(cfg)
     if err != nil {
-        klog.Fatalf("Error building kubernetes clientset: %s", err.Error())
+        klog.Fatalf("Error building kubernetes client: %s", err.Error())
     }
 
-    iotClient, err := clientset.NewForConfig(cfg)
+    iotClient, err := iot.NewForConfig(cfg)
     if err != nil {
-        klog.Fatalf("Error building example clientset: %s", err.Error())
+        klog.Fatalf("Error building IoT project client: %s", err.Error())
     }
 
     iotInformerFactory := informers.NewSharedInformerFactory(iotClient, time.Second*30)
 
-    controller := NewController(kubeClient, iotClient,
+    controller := NewController(
+        kubeClient, iotClient,
         iotInformerFactory.Hono().V1alpha1().IoTProjects())
 
-    // notice that there is no need to run Start methods in a separate goroutine. (i.e. go kubeInformerFactory.Start(stopCh)
-    // Start method is non-blocking and runs all registered informers in a dedicated goroutine.
     iotInformerFactory.Start(stopCh)
 
     if err = controller.Run(2, stopCh); err != nil {
         klog.Fatalf("Error running controller: %s", err.Error())
     }
-}
-
-func init() {
-    flag.StringVar(&kubeconfig, "kubeconfig", "", "Path to a kubeconfig. Only required if out-of-cluster.")
-    flag.StringVar(&masterURL, "master", "", "The address of the Kubernetes API server. Overrides any value in kubeconfig. Only required if out-of-cluster.")
 }
