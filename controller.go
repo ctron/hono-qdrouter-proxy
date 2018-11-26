@@ -58,7 +58,7 @@ type Controller struct {
     // simultaneously in two different workers.
     workqueue workqueue.RateLimitingInterface
 
-    manage qdr.Manage
+    manage *qdr.Manage
 }
 
 func NewController(
@@ -74,6 +74,7 @@ func NewController(
         projectLister:  projectInformer.Lister(),
         projectsSynced: projectInformer.Informer().HasSynced,
         workqueue:      workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "IoTProjects"),
+        manage:         qdr.NewManage(),
     }
 
     klog.Info("Setting up event handlers")

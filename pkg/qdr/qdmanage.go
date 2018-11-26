@@ -26,12 +26,12 @@ type Manage struct {
     Command string
 }
 
-func New() Manage {
-    return Manage{URL: "", Command: DefaultCommand}
+func NewManage() *Manage {
+    return &Manage{URL: "", Command: DefaultCommand}
 }
 
-func NewWithUrl(URL string) Manage {
-    return Manage{URL: URL, Command: DefaultCommand};
+func NewManageWithUrl(URL string) *Manage {
+    return &Manage{URL: URL, Command: DefaultCommand};
 }
 
 // Call a manage operation
