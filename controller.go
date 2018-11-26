@@ -245,21 +245,21 @@ func (c *Controller) syncHandler(key string) error {
     return nil
 }
 
-func (c *Controller) syncResource(currentPointer interface{}, resource qdr.RouterResource, creator func() map[string]string) (bool, error) {
+func (c *Controller) syncResource(currentPointer *interface{}, resource qdr.RouterResource, creator func() map[string]string) (bool, error) {
 
     found, err := c.manage.ReadAsObject(resource, currentPointer)
     if err != nil {
         return false, err
     }
 
-    klog.Infof("Current: %s", currentPointer)
+    klog.Infof("Current: %s", *currentPointer)
     klog.Infof("Request: %s", resource)
 
     if found && reflect.DeepEqual(currentPointer, &resource) {
         return false, nil
     }
 
-    if currentPointer != nil {
+    if found {
         c.manage.Delete(resource)
     }
 
